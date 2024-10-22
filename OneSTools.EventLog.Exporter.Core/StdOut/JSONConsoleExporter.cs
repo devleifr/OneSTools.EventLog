@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using OneSTools.EventLog.Exporter.Core;
 
 
@@ -12,14 +13,23 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
 {
     public class JSONConsoleExporter : IEventLogStorage
     {
-        // TODO: ENV variable
-        private const string PositionFilePath = "/app/data/eventlog_position.txt";
+
+        private readonly string _positionFilePath;
+
+        public JSONConsoleExporter(IConfiguration configuration)
+        {
+            var configuredPath = configuration.GetValue<string>("Exporter:PositionFilePath");
+
+            _positionFilePath = string.IsNullOrEmpty(configuredPath)
+                ? Path.Combine(Directory.GetCurrentDirectory(), "eventlog_position.txt")
+                : configuredPath;
+        }
 
         public async Task<EventLogPosition> ReadEventLogPositionAsync(CancellationToken cancellationToken = default)
         {
-            if (File.Exists(PositionFilePath))
+            if (File.Exists(_positionFilePath))
             {
-                var lines = await File.ReadAllLinesAsync(PositionFilePath, cancellationToken);
+                var lines = await File.ReadAllLinesAsync(_positionFilePath, cancellationToken);
                 if (lines.Length >= 4)
                 {
                     var fileName = lines[0];
@@ -51,8 +61,8 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
                 lastItem.Id.ToString()
             };
 
-            Directory.CreateDirectory(Path.GetDirectoryName(PositionFilePath));
-            await File.WriteAllLinesAsync(PositionFilePath, lines, cancellationToken);
+            Directory.CreateDirectory(Path.GetDirectoryName(_positionFilePath));
+            await File.WriteAllLinesAsync(_positionFilePath, lines, cancellationToken);
         }
 
         public void Dispose() {}
