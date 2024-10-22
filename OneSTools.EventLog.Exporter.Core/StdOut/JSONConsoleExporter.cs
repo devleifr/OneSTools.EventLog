@@ -15,6 +15,7 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
     {
 
         private readonly string _positionFilePath;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         public JSONConsoleExporter(IConfiguration configuration)
         {
@@ -23,6 +24,11 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
             _positionFilePath = string.IsNullOrEmpty(configuredPath)
                 ? Path.Combine(Directory.GetCurrentDirectory(), "eventlog_position.txt")
                 : configuredPath;
+
+            _jsonSerializerOptions = new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
         }
 
         public async Task<EventLogPosition> ReadEventLogPositionAsync(CancellationToken cancellationToken = default)
@@ -48,7 +54,7 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
         {
             foreach (var item in items)
             {
-                var json = JsonSerializer.Serialize(item);
+                var json = JsonSerializer.Serialize(item, _jsonSerializerOptions);
                 Console.WriteLine(json);
             }
 
