@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using OneSTools.EventLog.Exporter.Core;
 
-namespace OneSTools.EventLog.Exporter.StdOut
+
+namespace OneSTools.EventLog.Exporter.Core.StdOut
 {
     public class JSONConsoleExporter : IEventLogStorage
     {
