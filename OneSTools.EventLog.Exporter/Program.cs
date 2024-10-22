@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using OneSTools.EventLog.Exporter.Core;
 using OneSTools.EventLog.Exporter.Core.ClickHouse;
 using OneSTools.EventLog.Exporter.Core.ElasticSearch;
-using OneSTools.EventLog.Exporter.Core.StdOut
+using OneSTools.EventLog.Exporter.Core.StdOut;
 
 namespace OneSTools.EventLog.Exporter
 {
@@ -47,6 +47,7 @@ namespace OneSTools.EventLog.Exporter
                             break;
                         case StorageType.StdOut:
                             services.AddTransient<IEventLogStorage, JSONConsoleExporter>();
+                            break;
                         case StorageType.None:
                             throw new Exception("You must set StorageType parameter before starting the exporter");
                         default:
