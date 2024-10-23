@@ -30,14 +30,13 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
             if (File.Exists(_positionFilePath))
             {
                 var lines = await File.ReadAllLinesAsync(_positionFilePath, cancellationToken);
-                if (lines.Length >= 4)
+                if (lines.Length >= 2)
                 {
                     var fileName = lines[0];
                     var endPosition = long.Parse(lines[1]);
-                    var lgfEndPosition = long.Parse(lines[2]);
-                    var id = long.Parse(lines[3]);
 
-                    return new EventLogPosition(fileName, endPosition, lgfEndPosition, id);
+                    // NOTE: We don't need to use .lgf position & file ID
+                    return new EventLogPosition(fileName, endPosition, 0, 0);
                 }
             }
 
@@ -57,10 +56,9 @@ namespace OneSTools.EventLog.Exporter.Core.StdOut
             {
                 lastItem.FileName ?? "",
                 lastItem.EndPosition.ToString(),
-                lastItem.LgfEndPosition.ToString(),
-                lastItem.Id.ToString()
             };
 
+            // TODO: write to JSON
             Directory.CreateDirectory(Path.GetDirectoryName(_positionFilePath));
             await File.WriteAllLinesAsync(_positionFilePath, lines, cancellationToken);
         }
