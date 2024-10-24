@@ -121,24 +121,32 @@ namespace OneSTools.EventLog
             else if(_settings.SkipEventsBeforeDate != DateTime.MinValue)
                 currentReaderLastWriteDateTime = _settings.SkipEventsBeforeDate.AddSeconds(-1);
 
-            var filesDateTime = new List<(string, DateTime)>();
+            var fileNames = new List<(string, string, DateTime)>();
 
             var files = Directory.GetFiles(_settings.LogFolder, "*.lgp");
 
             foreach (var file in files)
                 if (_lgpReader != null)
                 {
-                    if (_lgpReader.LgpPath != file)
-                        filesDateTime.Add((file, new FileInfo(file).LastWriteTime));
+                    if (_lgpReader.LgpPath != file) {
+                        var fileInfo = new FileInfo(file);
+                        fileNames.Add((file, fileInfo.Name, fileInfo.LastWriteTime));
+                    }
                 }
                 else
                 {
-                    filesDateTime.Add((file, new FileInfo(file).LastWriteTime));
+                    // TODO: Do we really need this?
+                    var fileInfo = new FileInfo(file);
+                    fileNames.Add((file, fileInfo.Name, fileInfo.LastWriteTime));
                 }
 
-            var orderedFiles = filesDateTime.OrderBy(c => c.Item2).ToList();
+            var orderedFiles = fileNames.OrderBy(c => c.Item2).ThenBy(c => c.Item3).ToList();
 
-            var (item1, _) = orderedFiles.FirstOrDefault(c => c.Item2 > currentReaderLastWriteDateTime);
+            Console.WriteLine("XXX Sorted files XXX");
+            foreach (var file in orderedFiles)
+                Console.WriteLine($"Path: {file.Item1}, Name: {file.Item2}, Last Write Time: {file.Item3}");
+
+            var (item1, _, _) = orderedFiles.FirstOrDefault(c => c.Item3 > currentReaderLastWriteDateTime);
 
             if (string.IsNullOrEmpty(item1))
             {
